@@ -10,10 +10,10 @@
 # Please preserve changelog entries
 #
 
-%global github_owner     fabpot
+%global github_owner     twigphp
 %global github_name      Twig
-%global github_version   1.16.0
-%global github_commit    8ce37115802e257a984a82d38254884085060024
+%global github_version   1.16.2
+%global github_commit    42f758d9fe2146d1f0470604fc05ee43580873fc
 
 # Lib
 %global composer_vendor  twig
@@ -34,13 +34,14 @@
 # Build using "--without tests" to disable tests
 %global with_tests %{?_without_tests:0}%{!?_without_tests:1}
 
+%{!?phpdir:     %global phpdir     %{_datadir}/php}
 %{!?php_inidir: %global php_inidir %{_sysconfdir}/php.d}
 %{!?__php:      %global __php      %{_bindir}/php}
 %{!?__phpunit:  %global __phpunit  %{_bindir}/phpunit}
 
 Name:          php-%{composer_project}
 Version:       %{github_version}
-Release:       2%{?dist}
+Release:       1%{?dist}
 Summary:       The flexible, fast, and secure template engine for PHP
 
 Group:         Development/Libraries
@@ -50,9 +51,8 @@ Source0:       https://github.com/%{github_owner}/%{github_name}/archive/%{githu
 
 BuildRequires: php-devel >= %{php_min_ver}
 %if %{with_tests}
-# For tests
 BuildRequires: php-phpunit-PHPUnit
-# For tests: phpcompatinfo (computed from version 1.16.0)
+# phpcompatinfo (computed from version 1.16.2)
 BuildRequires: php-ctype
 BuildRequires: php-date
 BuildRequires: php-dom
@@ -68,7 +68,7 @@ BuildRequires: php-spl
 # Lib
 ## composer.json
 Requires:      php(language) >= %{php_min_ver}
-## phpcompatinfo (computed from version 1.16.0)
+## phpcompatinfo (computed from version 1.16.2)
 Requires:      php-ctype
 Requires:      php-date
 Requires:      php-dom
@@ -127,10 +127,6 @@ Obsoletes:     php-channel-twig
 %prep
 %setup -qn %{github_name}-%{github_commit}
 
-# Licenses
-mv LICENSE LICENSE-lib
-mv ext/twig/LICENSE LICENSE-ext
-
 # Ext
 ## NTS
 mv ext/%{ext_name} ext/NTS
@@ -167,8 +163,8 @@ popd
 
 %install
 # Lib
-mkdir -p %{buildroot}/%{_datadir}/php
-cp -rp lib/* %{buildroot}/%{_datadir}/php/
+mkdir -p %{buildroot}%{phpdir}
+cp -rp lib/* %{buildroot}%{phpdir}/
 
 # Ext
 ## NTS
@@ -207,11 +203,11 @@ sed 's/function testGetAttributeWithTemplateAsObject/function SKIP_testGetAttrib
 sed 's/colors="true"/colors="false"/' phpunit.xml.dist > phpunit.xml
 
 : Test suite without extension
-%{__phpunit} --include-path ./lib -d date.timezone="UTC"
+%{__phpunit} -d date.timezone="UTC"
 
 : Test suite with extension
 %{__php} --define extension=ext/NTS/modules/%{ext_name}.so \
-    %{__phpunit} --include-path ./lib -d date.timezone="UTC"
+    %{__phpunit} -d date.timezone="UTC"
 %else
 : Tests skipped
 %endif
@@ -219,10 +215,10 @@ sed 's/colors="true"/colors="false"/' phpunit.xml.dist > phpunit.xml
 
 %files
 %{!?_licensedir:%global license %%doc}
-%license LICENSE*
+%license LICENSE
 %doc CHANGELOG README.rst composer.json
 # Lib
-%{_datadir}/php/Twig
+%{phpdir}/Twig
 # Ext
 ## NTS
 %config(noreplace) %{php_inidir}/%{ini_name}
@@ -235,6 +231,11 @@ sed 's/colors="true"/colors="false"/' phpunit.xml.dist > phpunit.xml
 
 
 %changelog
+* Sat Nov 01 2014 Shawn Iwinski <shawn.iwinski@gmail.com> - 1.16.2-1
+- Updated to 1.16.2 (BZ #1159523)
+- GitHub owner changed from "fabpot" to "twigphp"
+- Single license for lib and ext
+
 * Mon Aug 25 2014 Shawn Iwinski <shawn.iwinski@gmail.com> - 1.16.0-2
 - Removed obsolete and provide of php-twig-CTwig (never imported into Fedora/EPEL)
 - Obsolete php-channel-twig
