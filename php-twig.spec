@@ -1,8 +1,8 @@
 #
 # RPM spec file for php-twig
 #
-# Copyright (c) 2014 Shawn Iwinski <shawn.iwinski@gmail.com>
-#                    Remi Collet <remi@fedoraproject.org>
+# Copyright (c) 2014-2015 Shawn Iwinski <shawn.iwinski@gmail.com>
+#                         Remi Collet <remi@fedoraproject.org>
 #
 # License: MIT
 # http://opensource.org/licenses/MIT
@@ -12,8 +12,8 @@
 
 %global github_owner     twigphp
 %global github_name      Twig
-%global github_version   1.16.2
-%global github_commit    42f758d9fe2146d1f0470604fc05ee43580873fc
+%global github_version   1.16.3
+%global github_commit    6dc11a1e8ecfc30e2c68aaeb218148409d8e68af
 
 # Lib
 %global composer_vendor  twig
@@ -51,8 +51,8 @@ Source0:       https://github.com/%{github_owner}/%{github_name}/archive/%{githu
 
 BuildRequires: php-devel >= %{php_min_ver}
 %if %{with_tests}
-BuildRequires: php-phpunit-PHPUnit
-# phpcompatinfo (computed from version 1.16.2)
+BuildRequires: %{__phpunit}
+# phpcompatinfo (computed from version 1.16.3)
 BuildRequires: php-ctype
 BuildRequires: php-date
 BuildRequires: php-dom
@@ -68,7 +68,7 @@ BuildRequires: php-spl
 # Lib
 ## composer.json
 Requires:      php(language) >= %{php_min_ver}
-## phpcompatinfo (computed from version 1.16.2)
+## phpcompatinfo (computed from version 1.16.3)
 Requires:      php-ctype
 Requires:      php-date
 Requires:      php-dom
@@ -199,15 +199,11 @@ sed 's/function testGetAttributeWithTemplateAsObject/function SKIP_testGetAttrib
     -i test/Twig/Tests/TemplateTest.php
 %endif
 
-## Create PHPUnit config with colors turned off
-sed 's/colors="true"/colors="false"/' phpunit.xml.dist > phpunit.xml
-
 : Test suite without extension
-%{__phpunit} -d date.timezone="UTC"
+%{__phpunit}
 
 : Test suite with extension
-%{__php} --define extension=ext/NTS/modules/%{ext_name}.so \
-    %{__phpunit} -d date.timezone="UTC"
+%{__php} --define extension=ext/NTS/modules/%{ext_name}.so %{__phpunit}
 %else
 : Tests skipped
 %endif
@@ -231,6 +227,9 @@ sed 's/colors="true"/colors="false"/' phpunit.xml.dist > phpunit.xml
 
 
 %changelog
+* Sun Jan 04 2015 Shawn Iwinski <shawn.iwinski@gmail.com> - 1.16.3-1
+- Updated to 1.16.3 (BZ #1178412)
+
 * Sat Nov 01 2014 Shawn Iwinski <shawn.iwinski@gmail.com> - 1.16.2-1
 - Updated to 1.16.2 (BZ #1159523)
 - GitHub owner changed from "fabpot" to "twigphp"
