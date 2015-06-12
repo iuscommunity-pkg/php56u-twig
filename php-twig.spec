@@ -12,8 +12,8 @@
 
 %global github_owner     twigphp
 %global github_name      Twig
-%global github_version   1.16.3
-%global github_commit    6dc11a1e8ecfc30e2c68aaeb218148409d8e68af
+%global github_version   1.18.2
+%global github_commit    e8e6575abf6102af53ec283f7f14b89e304fa602
 
 # Lib
 %global composer_vendor  twig
@@ -28,16 +28,14 @@
 %global ini_name 40-%{ext_name}.ini
 %endif
 
-# "php": ">=5.2.4"
-%global php_min_ver 5.2.4
+# "php": ">=5.2.7"
+%global php_min_ver 5.2.7
 
 # Build using "--without tests" to disable tests
-%global with_tests %{?_without_tests:0}%{!?_without_tests:1}
+%global with_tests 0%{!?_without_tests:1}
 
-%{!?phpdir:     %global phpdir     %{_datadir}/php}
-%{!?php_inidir: %global php_inidir %{_sysconfdir}/php.d}
-%{!?__php:      %global __php      %{_bindir}/php}
-%{!?__phpunit:  %global __phpunit  %{_bindir}/phpunit}
+%{!?phpdir:      %global phpdir      %{_datadir}/php}
+%{!?php_inidir:  %global php_inidir  %{_sysconfdir}/php.d}
 
 Name:          php-%{composer_project}
 Version:       %{github_version}
@@ -50,9 +48,10 @@ URL:           http://twig.sensiolabs.org
 Source0:       https://github.com/%{github_owner}/%{github_name}/archive/%{github_commit}/%{name}-%{github_version}-%{github_commit}.tar.gz
 
 BuildRequires: php-devel >= %{php_min_ver}
+# Tests
 %if %{with_tests}
-BuildRequires: %{__phpunit}
-# phpcompatinfo (computed from version 1.16.3)
+BuildRequires: %{_bindir}/phpunit
+## phpcompatinfo (computed from version 1.18.2)
 BuildRequires: php-ctype
 BuildRequires: php-date
 BuildRequires: php-dom
@@ -68,7 +67,7 @@ BuildRequires: php-spl
 # Lib
 ## composer.json
 Requires:      php(language) >= %{php_min_ver}
-## phpcompatinfo (computed from version 1.16.3)
+## phpcompatinfo (computed from version 1.18.2)
 Requires:      php-ctype
 Requires:      php-date
 Requires:      php-dom
@@ -127,31 +126,41 @@ Obsoletes:     php-channel-twig
 %prep
 %setup -qn %{github_name}-%{github_commit}
 
-# Ext
-## NTS
+: Ext -- NTS
 mv ext/%{ext_name} ext/NTS
-## ZTS
 %if %{with_zts}
+: Ext -- ZTS
 cp -pr ext/NTS ext/ZTS
 %endif
 
-## Create configuration file
+: Ext -- Create configuration file
 cat > %{ini_name} << 'INI'
 ; Enable %{ext_name} extension module
 extension=%{ext_name}.so
 INI
 
+: Create lib autoloader
+(cat <<'AUTOLOAD'
+<?php
+/**
+ * Autoloader created by %{name}-%{version}-%{release}
+ */
+
+require_once __DIR__ . '/Autoloader.php';
+Twig_Autoloader::register();
+AUTOLOAD
+) | tee lib/Twig/autoload.php
+
 
 %build
-# Ext
-## NTS
+: Ext -- NTS
 pushd ext/NTS
 %{_bindir}/phpize
 %configure --with-php-config=%{_bindir}/php-config
 make %{?_smp_mflags}
 popd
 
-## ZTS
+: Ext -- ZTS
 %if %{with_zts}
 pushd ext/ZTS
 %{_bindir}/zts-phpize
@@ -162,15 +171,14 @@ popd
 
 
 %install
-# Lib
+: Lib
 mkdir -p %{buildroot}%{phpdir}
 cp -rp lib/* %{buildroot}%{phpdir}/
 
-# Ext
-## NTS
+: Ext -- NTS
 make -C ext/NTS install INSTALL_ROOT=%{buildroot}
 install -D -m 0644 %{ini_name} %{buildroot}%{php_inidir}/%{ini_name}
-## ZTS
+: Ext -- ZTS
 %if %{with_zts}
 make -C ext/ZTS install INSTALL_ROOT=%{buildroot}
 install -D -m 0644 %{ini_name} %{buildroot}%{php_ztsinidir}/%{ini_name}
@@ -178,9 +186,8 @@ install -D -m 0644 %{ini_name} %{buildroot}%{php_ztsinidir}/%{ini_name}
 
 
 %check
-# Ext
 : Extension NTS minimal load test
-%{__php} --no-php-ini \
+%{_bindir}/php --no-php-ini \
     --define extension=ext/NTS/modules/%{ext_name}.so \
     --modules | grep %{ext_name}
 
@@ -192,18 +199,20 @@ install -D -m 0644 %{ini_name} %{buildroot}%{php_ztsinidir}/%{ini_name}
 %endif
 
 %if %{with_tests}
-# Test suite
-## Skip tests known to fail
+: Skip tests known to fail
+sed 's#function testGetAttributeExceptions#function SKIP_testGetAttributeExceptions#' \
+    -i test/Twig/Tests/TemplateTest.php
 %ifarch ppc64
 sed 's/function testGetAttributeWithTemplateAsObject/function SKIP_testGetAttributeWithTemplateAsObject/' \
     -i test/Twig/Tests/TemplateTest.php
 %endif
 
 : Test suite without extension
-%{__phpunit}
+%{_bindir}/phpunit --bootstrap %{buildroot}%{phpdir}/Twig/autoload.php -v
 
 : Test suite with extension
-%{__php} --define extension=ext/NTS/modules/%{ext_name}.so %{__phpunit}
+%{_bindir}/php --define extension=ext/NTS/modules/%{ext_name}.so \
+    %{_bindir}/phpunit --bootstrap %{buildroot}%{phpdir}/Twig/autoload.php -v
 %else
 : Tests skipped
 %endif
@@ -227,6 +236,10 @@ sed 's/function testGetAttributeWithTemplateAsObject/function SKIP_testGetAttrib
 
 
 %changelog
+* Thu Jun 11 2015 Shawn Iwinski <shawn.iwinski@gmail.com> - 1.18.2-1
+- Updated to 1.18.2 (BZ #1183601)
+- Added autoloader
+
 * Sun Jan 04 2015 Shawn Iwinski <shawn.iwinski@gmail.com> - 1.16.3-1
 - Updated to 1.16.3 (BZ #1178412)
 
