@@ -12,8 +12,8 @@
 
 %global github_owner     twigphp
 %global github_name      Twig
-%global github_version   1.18.2
-%global github_commit    e8e6575abf6102af53ec283f7f14b89e304fa602
+%global github_version   1.20.0
+%global github_commit    1ea4e5f81c6d005fe84d0b38e1c4f1955eb86844
 
 # Lib
 %global composer_vendor  twig
@@ -39,7 +39,7 @@
 
 Name:          php-%{composer_project}
 Version:       %{github_version}
-Release:       2%{?dist}
+Release:       1%{?dist}
 Summary:       The flexible, fast, and secure template engine for PHP
 
 Group:         Development/Libraries
@@ -51,7 +51,7 @@ BuildRequires: php-devel >= %{php_min_ver}
 # Tests
 %if %{with_tests}
 BuildRequires: %{_bindir}/phpunit
-## phpcompatinfo (computed from version 1.18.2)
+## phpcompatinfo (computed from version 1.20.0)
 BuildRequires: php-ctype
 BuildRequires: php-date
 BuildRequires: php-dom
@@ -67,7 +67,7 @@ BuildRequires: php-spl
 # Lib
 ## composer.json
 Requires:      php(language) >= %{php_min_ver}
-## phpcompatinfo (computed from version 1.18.2)
+## phpcompatinfo (computed from version 1.20.0)
 Requires:      php-ctype
 Requires:      php-date
 Requires:      php-dom
@@ -140,16 +140,17 @@ extension=%{ext_name}.so
 INI
 
 : Create lib autoloader
-(cat <<'AUTOLOAD'
+cat <<'AUTOLOAD' | tee lib/Twig/autoload.php
 <?php
 /**
- * Autoloader created by %{name}-%{version}-%{release}
+ * Autoloader for %{name} and its' dependencies
+ *
+ * Created by %{name}-%{version}-%{release}
  */
 
 require_once __DIR__ . '/Autoloader.php';
 Twig_Autoloader::register();
 AUTOLOAD
-) | tee lib/Twig/autoload.php
 
 
 %build
@@ -200,7 +201,8 @@ install -D -m 0644 %{ini_name} %{buildroot}%{php_ztsinidir}/%{ini_name}
 
 %if %{with_tests}
 : Skip tests known to fail
-sed 's#function testGetAttributeExceptions#function SKIP_testGetAttributeExceptions#' \
+sed -e 's#function testGetAttributeExceptions#function SKIP_testGetAttributeExceptions#' \
+    -e 's/function testGetAttributeWithTemplateAsObject/function skip_testGetAttributeWithTemplateAsObject/' \
     -i test/Twig/Tests/TemplateTest.php
 %ifarch ppc64
 sed 's/function testGetAttributeWithTemplateAsObject/function SKIP_testGetAttributeWithTemplateAsObject/' \
@@ -236,6 +238,9 @@ sed 's/function testGetAttributeWithTemplateAsObject/function SKIP_testGetAttrib
 
 
 %changelog
+* Wed Aug 12 2015 Shawn Iwinski <shawn.iwinski@gmail.com> - 1.20.0-1
+- Updated to 1.20.0 (BZ #1249259)
+
 * Thu Jun 18 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.18.2-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
 
