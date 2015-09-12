@@ -12,8 +12,8 @@
 
 %global github_owner     twigphp
 %global github_name      Twig
-%global github_version   1.20.0
-%global github_commit    1ea4e5f81c6d005fe84d0b38e1c4f1955eb86844
+%global github_version   1.21.2
+%global github_commit    ddce1136beb8db29b9cd7dffa8ab518b978c9db3
 
 # Lib
 %global composer_vendor  twig
@@ -51,7 +51,7 @@ BuildRequires: php-devel >= %{php_min_ver}
 # Tests
 %if %{with_tests}
 BuildRequires: %{_bindir}/phpunit
-## phpcompatinfo (computed from version 1.20.0)
+## phpcompatinfo (computed from version 1.21.2)
 BuildRequires: php-ctype
 BuildRequires: php-date
 BuildRequires: php-dom
@@ -67,7 +67,7 @@ BuildRequires: php-spl
 # Lib
 ## composer.json
 Requires:      php(language) >= %{php_min_ver}
-## phpcompatinfo (computed from version 1.20.0)
+## phpcompatinfo (computed from version 1.21.2)
 Requires:      php-ctype
 Requires:      php-date
 Requires:      php-dom
@@ -210,11 +210,11 @@ sed 's/function testGetAttributeWithTemplateAsObject/function SKIP_testGetAttrib
 %endif
 
 : Test suite without extension
-%{_bindir}/phpunit --bootstrap %{buildroot}%{phpdir}/Twig/autoload.php -v
+%{_bindir}/phpunit --bootstrap %{buildroot}%{phpdir}/Twig/autoload.php --verbose
 
 : Test suite with extension
 %{_bindir}/php --define extension=ext/NTS/modules/%{ext_name}.so \
-    %{_bindir}/phpunit --bootstrap %{buildroot}%{phpdir}/Twig/autoload.php -v
+    %{_bindir}/phpunit --bootstrap %{buildroot}%{phpdir}/Twig/autoload.php --verbose
 %else
 : Tests skipped
 %endif
@@ -238,6 +238,9 @@ sed 's/function testGetAttributeWithTemplateAsObject/function SKIP_testGetAttrib
 
 
 %changelog
+* Sat Sep 12 2015 Shawn Iwinski <shawn.iwinski@gmail.com> - 1.21.2-1
+- Updated to 1.21.2 (BZ #1256767)
+
 * Wed Aug 12 2015 Shawn Iwinski <shawn.iwinski@gmail.com> - 1.20.0-1
 - Updated to 1.20.0 (BZ #1249259)
 
