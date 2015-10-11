@@ -1,5 +1,5 @@
 #
-# RPM spec file for php-twig
+# Fedora spec file for php-twig
 #
 # Copyright (c) 2014-2015 Shawn Iwinski <shawn.iwinski@gmail.com>
 #                         Remi Collet <remi@fedoraproject.org>
@@ -12,8 +12,8 @@
 
 %global github_owner     twigphp
 %global github_name      Twig
-%global github_version   1.21.2
-%global github_commit    ddce1136beb8db29b9cd7dffa8ab518b978c9db3
+%global github_version   1.22.2
+%global github_commit    79249fc8c9ff62e41e217e0c630e2e00bcadda6a
 
 # Lib
 %global composer_vendor  twig
@@ -51,7 +51,7 @@ BuildRequires: php-devel >= %{php_min_ver}
 # Tests
 %if %{with_tests}
 BuildRequires: %{_bindir}/phpunit
-## phpcompatinfo (computed from version 1.21.2)
+## phpcompatinfo (computed from version 1.22.2)
 BuildRequires: php-ctype
 BuildRequires: php-date
 BuildRequires: php-dom
@@ -67,7 +67,7 @@ BuildRequires: php-spl
 # Lib
 ## composer.json
 Requires:      php(language) >= %{php_min_ver}
-## phpcompatinfo (computed from version 1.21.2)
+## phpcompatinfo (computed from version 1.22.2)
 Requires:      php-ctype
 Requires:      php-date
 Requires:      php-dom
@@ -187,6 +187,14 @@ install -D -m 0644 %{ini_name} %{buildroot}%{php_ztsinidir}/%{ini_name}
 
 
 %check
+: Library version check
+%{_bindir}/php -r 'require_once "%{buildroot}%{phpdir}/Twig/autoload.php";
+    exit(version_compare("%{version}", Twig_Environment::VERSION, "=") ? 0 : 1);'
+
+: Extension version check
+EXT_VERSION=`grep PHP_TWIG_VERSION ext/NTS/php_twig.h | awk '{print $3}' | sed 's/"//g'` \
+    %{_bindir}/php -r 'exit(version_compare("%{version}", getenv("EXT_VERSION"), "=") ? 0 : 1);'
+
 : Extension NTS minimal load test
 %{_bindir}/php --no-php-ini \
     --define extension=ext/NTS/modules/%{ext_name}.so \
@@ -238,6 +246,10 @@ sed 's/function testGetAttributeWithTemplateAsObject/function SKIP_testGetAttrib
 
 
 %changelog
+* Sun Oct 11 2015 Shawn Iwinski <shawn.iwinski@gmail.com> - 1.22.2-1
+- Updated to 1.22.2 (RHBZ #1262655)
+- Added lib and ext version checks
+
 * Sat Sep 12 2015 Shawn Iwinski <shawn.iwinski@gmail.com> - 1.21.2-1
 - Updated to 1.21.2 (BZ #1256767)
 
