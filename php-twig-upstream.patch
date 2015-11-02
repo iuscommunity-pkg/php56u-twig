@@ -1,0 +1,72 @@
+From ee5e25eb4681b41a7408cd08d4d10ef3d216d3eb Mon Sep 17 00:00:00 2001
+From: Remi Collet <fedora@famillecollet.com>
+Date: Mon, 2 Nov 2015 15:13:46 +0100
+Subject: [PATCH] fix BC, revert to pre 1.23 behavior, and make use of pattern
+ an option
+
+---
+ lib/Twig/Test/NodeTestCase.php      | 12 ++++++++----
+ test/Twig/Tests/Node/ModuleTest.php |  6 +++---
+ 2 files changed, 11 insertions(+), 7 deletions(-)
+
+diff --git a/lib/Twig/Test/NodeTestCase.php b/lib/Twig/Test/NodeTestCase.php
+index 6fe1b5f..e591c1d 100644
+--- a/lib/Twig/Test/NodeTestCase.php
++++ b/lib/Twig/Test/NodeTestCase.php
+@@ -15,17 +15,21 @@
+     /**
+      * @dataProvider getTests
+      */
+-    public function testCompile($node, $source, $environment = null)
++    public function testCompile($node, $source, $environment = null, $isPattern = false)
+     {
+-        $this->assertNodeCompilation($source, $node, $environment);
++        $this->assertNodeCompilation($source, $node, $environment, $isPattern);
+     }
+ 
+-    public function assertNodeCompilation($source, Twig_Node $node, Twig_Environment $environment = null)
++    public function assertNodeCompilation($source, Twig_Node $node, Twig_Environment $environment = null, $isPattern = false)
+     {
+         $compiler = $this->getCompiler($environment);
+         $compiler->compile($node);
+ 
+-        $this->assertStringMatchesFormat($source, trim($compiler->getSource()));
++        if ($isPattern) {
++            $this->assertStringMatchesFormat($source, trim($compiler->getSource()));
++        } else {
++            $this->assertEquals($source, trim($compiler->getSource()));
++        }
+     }
+ 
+     protected function getCompiler(Twig_Environment $environment = null)
+diff --git a/test/Twig/Tests/Node/ModuleTest.php b/test/Twig/Tests/Node/ModuleTest.php
+index ca784e5..35b3e2e 100644
+--- a/test/Twig/Tests/Node/ModuleTest.php
++++ b/test/Twig/Tests/Node/ModuleTest.php
+@@ -75,7 +75,7 @@ public function getDebugInfo()
+     }
+ }
+ EOF
+-        , $twig);
++        , $twig, true);
+ 
+         $import = new Twig_Node_Import(new Twig_Node_Expression_Constant('foo.twig', 1), new Twig_Node_Expression_AssignName('macro', 1), 2);
+ 
+@@ -128,7 +128,7 @@ public function getDebugInfo()
+     }
+ }
+ EOF
+-        , $twig);
++        , $twig, true);
+ 
+         $set = new Twig_Node_Set(false, new Twig_Node(array(new Twig_Node_Expression_AssignName('foo', 4))), new Twig_Node(array(new Twig_Node_Expression_Constant('foo', 4))), 4);
+         $body = new Twig_Node(array($set));
+@@ -176,7 +176,7 @@ public function getDebugInfo()
+     }
+ }
+ EOF
+-        , $twig);
++        , $twig, true);
+ 
+         return $tests;
+     }
