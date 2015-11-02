@@ -39,13 +39,16 @@
 
 Name:          php-%{composer_project}
 Version:       %{github_version}
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       The flexible, fast, and secure template engine for PHP
 
 Group:         Development/Libraries
 License:       BSD
 URL:           http://twig.sensiolabs.org
 Source0:       https://github.com/%{github_owner}/%{github_name}/archive/%{github_commit}/%{name}-%{github_version}-%{github_commit}.tar.gz
+
+# https://github.com/twigphp/Twig/pull/1905 (merged)
+Patch0:        %{name}-upstream.patch
 
 BuildRequires: php-devel >= %{php_min_ver}
 # Tests
@@ -125,6 +128,8 @@ Obsoletes:     php-channel-twig
 
 %prep
 %setup -qn %{github_name}-%{github_commit}
+
+%patch0 -p1
 
 : Ext -- NTS
 mv ext/%{ext_name} ext/NTS
@@ -246,6 +251,10 @@ sed 's/function testGetAttributeWithTemplateAsObject/function SKIP_testGetAttrib
 
 
 %changelog
+* Mon Nov  2 2015 Remi Collet <remi@fedoraproject.org> - 1.23.0-2
+- fix BC break in NodeTestCase, add upstream patch from
+  https://github.com/twigphp/Twig/pull/1905
+
 * Fri Oct 30 2015 Remi Collet <remi@fedoraproject.org> - 1.23.0-1
 - Update to 1.23.0
 
