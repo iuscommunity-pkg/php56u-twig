@@ -12,8 +12,8 @@
 
 %global github_owner     twigphp
 %global github_name      Twig
-%global github_version   1.23.0
-%global github_commit    5868cd822fd6cf626d5f805439575f9c323cee2a
+%global github_version   1.23.1
+%global github_commit    d9b6333ae8dd2c8e3fd256e127548def0bc614c6
 
 # Lib
 %global composer_vendor  twig
@@ -46,9 +46,6 @@ Group:         Development/Libraries
 License:       BSD
 URL:           http://twig.sensiolabs.org
 Source0:       https://github.com/%{github_owner}/%{github_name}/archive/%{github_commit}/%{name}-%{github_version}-%{github_commit}.tar.gz
-
-# https://github.com/twigphp/Twig/pull/1905 (merged)
-Patch0:        %{name}-upstream.patch
 
 BuildRequires: php-devel >= %{php_min_ver}
 # Tests
@@ -128,8 +125,6 @@ Obsoletes:     php-channel-twig
 
 %prep
 %setup -qn %{github_name}-%{github_commit}
-
-%patch0 -p1
 
 : Ext -- NTS
 mv ext/%{ext_name} ext/NTS
@@ -251,6 +246,10 @@ sed 's/function testGetAttributeWithTemplateAsObject/function SKIP_testGetAttrib
 
 
 %changelog
+* Thu Nov 05 2015 Remi Collet <remi@fedoraproject.org> - 1.23.1-1
+- Update to 1.23.0
+- drop patch merged upstream
+
 * Mon Nov  2 2015 Remi Collet <remi@fedoraproject.org> - 1.23.0-2
 - fix BC break in NodeTestCase, add upstream patch from
   https://github.com/twigphp/Twig/pull/1905
