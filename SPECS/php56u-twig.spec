@@ -84,7 +84,6 @@ Requires:      %{php_base}(api)      = %{php_core_api}
 Provides:      php-composer(%{composer_vendor}/%{composer_project}) = %{version}
 Provides:      %{php_base}-composer(%{composer_vendor}/%{composer_project}) = %{version}
 ## Rename
-Obsoletes:     php-twig-Twig < %{version}-%{release}
 Provides:      php-twig-Twig = %{version}-%{release}
 Provides:      %{php_base}-twig-Twig = %{version}-%{release}
 ## PEAR
@@ -92,7 +91,6 @@ Provides:      php-pear(pear.twig-project.org/Twig) = %{version}
 Provides:      %{php_base}-pear(pear.twig-project.org/Twig) = %{version}
 # Ext
 ## Rename
-Obsoletes:     php-twig-ctwig         < %{version}-%{release}
 Provides:      php-twig-ctwig         = %{version}-%{release}
 Provides:      php-twig-ctwig%{?_isa} = %{version}-%{release}
 Provides:      %{php_base}-twig-ctwig         = %{version}-%{release}
@@ -107,9 +105,6 @@ Provides:      %{php_base}-pecl(pear.twig-project.org/CTwig)%{?_isa} = %{version
 Provides:       php-twig = %{version}-%{release}
 Provides:       php-twig%{?_isa} = %{version}-%{release}
 Conflicts:      php-twig < %{version}
-
-# This pkg was the only one in this channel so the channel is no longer needed
-Obsoletes:     php-channel-twig
 
 %if 0%{?fedora} < 20 && 0%{?rhel} < 7
 # Filter shared private
@@ -258,6 +253,7 @@ sed 's/function testGetAttributeWithTemplateAsObject/function SKIP_testGetAttrib
 * Tue Jan 05 2016 Carl George <carl.george@rackspace.com> - 1.23.1-1.ius
 - Port to IUS from Fedora
 - Remove %%php_min_ver because this package is tied to PHP 5.6
+- Don't obsolete stock packages
 
 * Thu Nov 05 2015 Remi Collet <remi@fedoraproject.org> - 1.23.1-1
 - Update to 1.23.0
