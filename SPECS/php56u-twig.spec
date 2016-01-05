@@ -15,7 +15,6 @@
 %global github_owner     twigphp
 %global github_name      Twig
 %global github_version   1.23.1
-%global github_commit    d9b6333ae8dd2c8e3fd256e127548def0bc614c6
 
 # Lib
 %global composer_vendor  twig
@@ -42,7 +41,7 @@ Summary:       The flexible, fast, and secure template engine for PHP
 Group:         Development/Libraries
 License:       BSD
 URL:           http://twig.sensiolabs.org
-Source0:       https://github.com/%{github_owner}/%{github_name}/archive/%{github_commit}/%{name}-%{github_version}-%{github_commit}.tar.gz
+Source0:       https://github.com/%{github_owner}/%{github_name}/archive/v%{github_version}.tar.gz
 
 BuildRequires: %{php_base}-devel
 # Tests
@@ -128,7 +127,7 @@ Conflicts:      php-twig < %{version}
 
 
 %prep
-%setup -qn %{github_name}-%{github_commit}
+%setup -qn %{github_name}-%{github_version}
 
 : Ext -- NTS
 mv ext/%{ext_name} ext/NTS
