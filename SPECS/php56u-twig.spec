@@ -1,3 +1,5 @@
+# IUS spec file for php56u-twig, forked from
+#
 #
 # Fedora spec file for php-twig
 #
@@ -22,11 +24,7 @@
 # Ext
 %global ext_name twig
 %global with_zts 0%{?__ztsphp:1}
-%if "%{php_version}" < "5.6"
-%global ini_name %{ext_name}.ini
-%else
 %global ini_name 40-%{ext_name}.ini
-%endif
 
 # "php": ">=5.2.7"
 %global php_min_ver 5.2.7
@@ -37,9 +35,11 @@
 %{!?phpdir:      %global phpdir      %{_datadir}/php}
 %{!?php_inidir:  %global php_inidir  %{_sysconfdir}/php.d}
 
-Name:          php-%{composer_project}
+%global php_base php56u
+
+Name:          %{php_base}-%{composer_project}
 Version:       %{github_version}
-Release:       2%{?dist}
+Release:       1.ius%{?dist}
 Summary:       The flexible, fast, and secure template engine for PHP
 
 Group:         Development/Libraries
@@ -47,57 +47,69 @@ License:       BSD
 URL:           http://twig.sensiolabs.org
 Source0:       https://github.com/%{github_owner}/%{github_name}/archive/%{github_commit}/%{name}-%{github_version}-%{github_commit}.tar.gz
 
-BuildRequires: php-devel >= %{php_min_ver}
+BuildRequires: %{php_base}-devel >= %{php_min_ver}
 # Tests
 %if %{with_tests}
 BuildRequires: %{_bindir}/phpunit
 ## phpcompatinfo (computed from version 1.22.2)
-BuildRequires: php-ctype
-BuildRequires: php-date
-BuildRequires: php-dom
-BuildRequires: php-hash
-BuildRequires: php-iconv
-BuildRequires: php-json
-BuildRequires: php-mbstring
-BuildRequires: php-pcre
-BuildRequires: php-reflection
-BuildRequires: php-spl
+BuildRequires: %{php_base}-ctype
+BuildRequires: %{php_base}-date
+BuildRequires: %{php_base}-dom
+BuildRequires: %{php_base}-hash
+BuildRequires: %{php_base}-iconv
+BuildRequires: %{php_base}-json
+BuildRequires: %{php_base}-mbstring
+BuildRequires: %{php_base}-pcre
+BuildRequires: %{php_base}-reflection
+BuildRequires: %{php_base}-spl
 %endif
 
 # Lib
 ## composer.json
-Requires:      php(language) >= %{php_min_ver}
+Requires:      %{php_base}(language) >= %{php_min_ver}
 ## phpcompatinfo (computed from version 1.22.2)
-Requires:      php-ctype
-Requires:      php-date
-Requires:      php-dom
-Requires:      php-hash
-Requires:      php-iconv
-Requires:      php-json
-Requires:      php-mbstring
-Requires:      php-pcre
-Requires:      php-reflection
-Requires:      php-spl
+Requires:      %{php_base}-ctype
+Requires:      %{php_base}-date
+Requires:      %{php_base}-dom
+Requires:      %{php_base}-hash
+Requires:      %{php_base}-iconv
+Requires:      %{php_base}-json
+Requires:      %{php_base}-mbstring
+Requires:      %{php_base}-pcre
+Requires:      %{php_base}-reflection
+Requires:      %{php_base}-spl
 # Ext
-Requires:      php(zend-abi) = %{php_zend_api}
-Requires:      php(api)      = %{php_core_api}
+Requires:      %{php_base}(zend-abi) = %{php_zend_api}
+Requires:      %{php_base}(api)      = %{php_core_api}
 
 # Lib
 ## Composer
 Provides:      php-composer(%{composer_vendor}/%{composer_project}) = %{version}
+Provides:      %{php_base}-composer(%{composer_vendor}/%{composer_project}) = %{version}
 ## Rename
 Obsoletes:     php-twig-Twig < %{version}-%{release}
 Provides:      php-twig-Twig = %{version}-%{release}
+Provides:      %{php_base}-twig-Twig = %{version}-%{release}
 ## PEAR
 Provides:      php-pear(pear.twig-project.org/Twig) = %{version}
+Provides:      %{php_base}-pear(pear.twig-project.org/Twig) = %{version}
 # Ext
 ## Rename
 Obsoletes:     php-twig-ctwig         < %{version}-%{release}
 Provides:      php-twig-ctwig         = %{version}-%{release}
 Provides:      php-twig-ctwig%{?_isa} = %{version}-%{release}
+Provides:      %{php_base}-twig-ctwig         = %{version}-%{release}
+Provides:      %{php_base}-twig-ctwig%{?_isa} = %{version}-%{release}
 ## PECL
 Provides:      php-pecl(pear.twig-project.org/CTwig)         = %{version}
 Provides:      php-pecl(pear.twig-project.org/CTwig)%{?_isa} = %{version}
+Provides:      %{php_base}-pecl(pear.twig-project.org/CTwig)         = %{version}
+Provides:      %{php_base}-pecl(pear.twig-project.org/CTwig)%{?_isa} = %{version}
+
+# provide and conflict with stock name
+Provides:       php-twig = %{version}-%{release}
+Provides:       php-twig%{?_isa} = %{version}-%{release}
+Conflicts:      php-twig < %{version}
 
 # This pkg was the only one in this channel so the channel is no longer needed
 Obsoletes:     php-channel-twig
@@ -246,6 +258,9 @@ sed 's/function testGetAttributeWithTemplateAsObject/function SKIP_testGetAttrib
 
 
 %changelog
+* Tue Jan 05 2016 Carl George <carl.george@rackspace.com> - 1.23.1-1.ius
+- Port to IUS from Fedora
+
 * Thu Nov 05 2015 Remi Collet <remi@fedoraproject.org> - 1.23.1-1
 - Update to 1.23.0
 - drop patch merged upstream
