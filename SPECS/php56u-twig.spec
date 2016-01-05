@@ -143,7 +143,7 @@ INI
 cat <<'AUTOLOAD' | tee lib/Twig/autoload.php
 <?php
 /**
- * Autoloader for %{name} and its' dependencies
+ * Autoloader for %{name} and its dependencies
  *
  * Created by %{name}-%{version}-%{release}
  */
