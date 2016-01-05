@@ -26,9 +26,6 @@
 %global with_zts 0%{?__ztsphp:1}
 %global ini_name 40-%{ext_name}.ini
 
-# "php": ">=5.2.7"
-%global php_min_ver 5.2.7
-
 # Build using "--without tests" to disable tests
 %global with_tests 0%{!?_without_tests:1}
 
@@ -47,7 +44,7 @@ License:       BSD
 URL:           http://twig.sensiolabs.org
 Source0:       https://github.com/%{github_owner}/%{github_name}/archive/%{github_commit}/%{name}-%{github_version}-%{github_commit}.tar.gz
 
-BuildRequires: %{php_base}-devel >= %{php_min_ver}
+BuildRequires: %{php_base}-devel
 # Tests
 %if %{with_tests}
 BuildRequires: %{_bindir}/phpunit
@@ -66,7 +63,7 @@ BuildRequires: %{php_base}-spl
 
 # Lib
 ## composer.json
-Requires:      %{php_base}(language) >= %{php_min_ver}
+Requires:      %{php_base}(language)
 ## phpcompatinfo (computed from version 1.22.2)
 Requires:      %{php_base}-ctype
 Requires:      %{php_base}-date
@@ -260,6 +257,7 @@ sed 's/function testGetAttributeWithTemplateAsObject/function SKIP_testGetAttrib
 %changelog
 * Tue Jan 05 2016 Carl George <carl.george@rackspace.com> - 1.23.1-1.ius
 - Port to IUS from Fedora
+- Remove %%php_min_ver because this package is tied to PHP 5.6
 
 * Thu Nov 05 2015 Remi Collet <remi@fedoraproject.org> - 1.23.1-1
 - Update to 1.23.0
