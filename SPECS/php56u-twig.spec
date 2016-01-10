@@ -25,8 +25,7 @@
 %global with_zts 0%{?__ztsphp:1}
 %global ini_name 40-%{ext_name}.ini
 
-# Build using "--without tests" to disable tests
-%global with_tests 0%{!?_without_tests:1}
+%global with_tests 0
 
 %{!?phpdir:      %global phpdir      %{_datadir}/php}
 %{!?php_inidir:  %global php_inidir  %{_sysconfdir}/php.d}
@@ -253,6 +252,7 @@ sed 's/function testGetAttributeWithTemplateAsObject/function SKIP_testGetAttrib
 - Port to IUS from Fedora
 - Remove %%php_min_ver because this package is tied to PHP 5.6
 - Don't obsolete stock packages
+- Disable test suite
 
 * Thu Nov 05 2015 Remi Collet <remi@fedoraproject.org> - 1.23.1-1
 - Update to 1.23.0
