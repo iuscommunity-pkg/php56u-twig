@@ -14,7 +14,7 @@
 
 %global github_owner     twigphp
 %global github_name      Twig
-%global github_version   1.23.1
+%global github_version   1.24.1
 
 # Lib
 %global composer_vendor  twig
@@ -248,6 +248,9 @@ sed 's/function testGetAttributeWithTemplateAsObject/function SKIP_testGetAttrib
 
 
 %changelog
+* Mon Jun 13 2016 Carl George <carl.george@rackspace.com> - 1.24.1-1.ius
+- Latest upstream
+
 * Tue Jan 05 2016 Carl George <carl.george@rackspace.com> - 1.23.1-1.ius
 - Port to IUS from Fedora
 - Remove %%php_min_ver because this package is tied to PHP 5.6
