@@ -25,90 +25,87 @@
 %global ini_name 40-%{ext_name}.ini
 
 %{!?phpdir:      %global phpdir      %{_datadir}/php}
-%{!?php_inidir:  %global php_inidir  %{_sysconfdir}/php.d}
 
-%global php_base php56u
+%global php php56u
 
 %bcond_without zts
 %bcond_with tests
 
-Name:          %{php_base}-%{composer_project}
+Name:          %{php}-%{composer_project}
 Version:       %{github_version}
 Release:       1.ius%{?dist}
 Summary:       The flexible, fast, and secure template engine for PHP
 
-Group:         Development/Libraries
 License:       BSD
 URL:           http://twig.sensiolabs.org
 Source0:       https://github.com/%{github_owner}/%{github_name}/archive/v%{github_version}.tar.gz
 
-BuildRequires: %{php_base}-devel
+BuildRequires: %{php}-devel
 # Tests
 %if %{with tests}
 BuildRequires: %{_bindir}/phpunit
 ## phpcompatinfo (computed from version 1.22.2)
-BuildRequires: %{php_base}-ctype
-BuildRequires: %{php_base}-date
-BuildRequires: %{php_base}-dom
-BuildRequires: %{php_base}-hash
-BuildRequires: %{php_base}-iconv
-BuildRequires: %{php_base}-json
-BuildRequires: %{php_base}-mbstring
-BuildRequires: %{php_base}-pcre
-BuildRequires: %{php_base}-reflection
-BuildRequires: %{php_base}-spl
+BuildRequires: %{php}-ctype
+BuildRequires: %{php}-date
+BuildRequires: %{php}-dom
+BuildRequires: %{php}-hash
+BuildRequires: %{php}-iconv
+BuildRequires: %{php}-json
+BuildRequires: %{php}-mbstring
+BuildRequires: %{php}-pcre
+BuildRequires: %{php}-reflection
+BuildRequires: %{php}-spl
 %endif
 
 # Lib
 ## composer.json
-Requires:      %{php_base}(language)
+Requires:      php(language)
 ## phpcompatinfo (computed from version 1.22.2)
-Requires:      %{php_base}-ctype
-Requires:      %{php_base}-date
-Requires:      %{php_base}-dom
-Requires:      %{php_base}-hash
-Requires:      %{php_base}-iconv
-Requires:      %{php_base}-json
-Requires:      %{php_base}-mbstring
-Requires:      %{php_base}-pcre
-Requires:      %{php_base}-reflection
-Requires:      %{php_base}-spl
+Requires:      %{php}-ctype
+Requires:      %{php}-date
+Requires:      %{php}-dom
+Requires:      %{php}-hash
+Requires:      %{php}-iconv
+Requires:      %{php}-json
+Requires:      %{php}-mbstring
+Requires:      %{php}-pcre
+Requires:      %{php}-reflection
+Requires:      %{php}-spl
 # Ext
-Requires:      %{php_base}(zend-abi) = %{php_zend_api}
-Requires:      %{php_base}(api)      = %{php_core_api}
+Requires:      php(zend-abi) = %{php_zend_api}
+Requires:      php(api)      = %{php_core_api}
 
 # Lib
 ## Composer
 Provides:      php-composer(%{composer_vendor}/%{composer_project}) = %{version}
-Provides:      %{php_base}-composer(%{composer_vendor}/%{composer_project}) = %{version}
+Provides:      %{php}-composer(%{composer_vendor}/%{composer_project}) = %{version}
 ## Rename
 Provides:      php-twig-Twig = %{version}-%{release}
-Provides:      %{php_base}-twig-Twig = %{version}-%{release}
+Provides:      %{php}-twig-Twig = %{version}-%{release}
 ## PEAR
 Provides:      php-pear(pear.twig-project.org/Twig) = %{version}
-Provides:      %{php_base}-pear(pear.twig-project.org/Twig) = %{version}
+Provides:      %{php}-pear(pear.twig-project.org/Twig) = %{version}
 # Ext
 ## Rename
 Provides:      php-twig-ctwig         = %{version}-%{release}
 Provides:      php-twig-ctwig%{?_isa} = %{version}-%{release}
-Provides:      %{php_base}-twig-ctwig         = %{version}-%{release}
-Provides:      %{php_base}-twig-ctwig%{?_isa} = %{version}-%{release}
+Provides:      %{php}-twig-ctwig         = %{version}-%{release}
+Provides:      %{php}-twig-ctwig%{?_isa} = %{version}-%{release}
 ## PECL
 Provides:      php-pecl(pear.twig-project.org/CTwig)         = %{version}
 Provides:      php-pecl(pear.twig-project.org/CTwig)%{?_isa} = %{version}
-Provides:      %{php_base}-pecl(pear.twig-project.org/CTwig)         = %{version}
-Provides:      %{php_base}-pecl(pear.twig-project.org/CTwig)%{?_isa} = %{version}
+Provides:      %{php}-pecl(pear.twig-project.org/CTwig)         = %{version}
+Provides:      %{php}-pecl(pear.twig-project.org/CTwig)%{?_isa} = %{version}
 
 # provide and conflict with stock name
-Provides:       php-twig = %{version}-%{release}
-Provides:       php-twig%{?_isa} = %{version}-%{release}
+Provides:       php-twig = %{version}
+Provides:       php-twig%{?_isa} = %{version}
 Conflicts:      php-twig < %{version}
 
-%if 0%{?fedora} < 20 && 0%{?rhel} < 7
-# Filter shared private
-%{?filter_provides_in: %filter_provides_in %{_libdir}/.*\.so$}
+%{?filter_provides_in: %filter_provides_in %{php_extdir}/.*\.so$}
+%{?filter_provides_in: %filter_provides_in %{php_ztsextdir}/.*\.so$}
 %{?filter_setup}
-%endif
+
 
 %description
 %{summary}.
@@ -190,7 +187,7 @@ install -D -m 0644 %{ini_name} %{buildroot}%{php_ztsinidir}/%{ini_name}
 
 %check
 : Library version check
-%{_bindir}/php -r 'require_once "%{buildroot}%{phpdir}/Twig/autoload.php";
+%{__php} -r 'require_once "%{buildroot}%{phpdir}/Twig/autoload.php";
     exit(version_compare("%{version}", Twig_Environment::VERSION, "=") ? 0 : 1);'
 
 : Extension version check
@@ -198,7 +195,7 @@ EXT_VERSION=`grep PHP_TWIG_VERSION ext/NTS/php_twig.h | awk '{print $3}' | sed '
     %{_bindir}/php -r 'exit(version_compare("%{version}", getenv("EXT_VERSION"), "=") ? 0 : 1);'
 
 : Extension NTS minimal load test
-%{_bindir}/php --no-php-ini \
+%{__php} --no-php-ini \
     --define extension=ext/NTS/modules/%{ext_name}.so \
     --modules | grep %{ext_name}
 
@@ -231,7 +228,6 @@ sed 's/function testGetAttributeWithTemplateAsObject/function SKIP_testGetAttrib
 
 
 %files
-%{!?_licensedir:%global license %%doc}
 %license LICENSE
 %doc CHANGELOG README.rst composer.json
 # Lib
