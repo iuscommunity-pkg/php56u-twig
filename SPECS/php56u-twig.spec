@@ -14,7 +14,7 @@
 
 %global github_owner     twigphp
 %global github_name      Twig
-%global github_version   1.33.2
+%global github_version   1.34.2
 
 # Lib
 %global composer_vendor  twig
@@ -248,6 +248,9 @@ sed 's/function testGetAttributeWithTemplateAsObject/function SKIP_testGetAttrib
 
 
 %changelog
+* Tue Jun 06 2017 Carl George <carl.george@rackspace.com> - 1.34.2-1.ius
+- Latest upstream
+
 * Thu May 04 2017 Ben Harper <ben.harper@rackspace.com> - 1.33.2-1.ius
 - Latest upstream
 
