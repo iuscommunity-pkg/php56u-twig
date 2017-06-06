@@ -22,15 +22,15 @@
 
 # Ext
 %global ext_name twig
-%global with_zts 0%{?__ztsphp:1}
 %global ini_name 40-%{ext_name}.ini
-
-%global with_tests 0
 
 %{!?phpdir:      %global phpdir      %{_datadir}/php}
 %{!?php_inidir:  %global php_inidir  %{_sysconfdir}/php.d}
 
 %global php_base php56u
+
+%bcond_without zts
+%bcond_with tests
 
 Name:          %{php_base}-%{composer_project}
 Version:       %{github_version}
@@ -44,7 +44,7 @@ Source0:       https://github.com/%{github_owner}/%{github_name}/archive/v%{gith
 
 BuildRequires: %{php_base}-devel
 # Tests
-%if %{with_tests}
+%if %{with tests}
 BuildRequires: %{_bindir}/phpunit
 ## phpcompatinfo (computed from version 1.22.2)
 BuildRequires: %{php_base}-ctype
@@ -130,7 +130,7 @@ Conflicts:      php-twig < %{version}
 
 : Ext -- NTS
 mv ext/%{ext_name} ext/NTS
-%if %{with_zts}
+%if %{with zts}
 : Ext -- ZTS
 cp -pr ext/NTS ext/ZTS
 %endif
@@ -164,7 +164,7 @@ make %{?_smp_mflags}
 popd
 
 : Ext -- ZTS
-%if %{with_zts}
+%if %{with zts}
 pushd ext/ZTS
 %{_bindir}/zts-phpize
 %configure --with-php-config=%{_bindir}/zts-php-config
@@ -182,7 +182,7 @@ cp -rp lib/* %{buildroot}%{phpdir}/
 make -C ext/NTS install INSTALL_ROOT=%{buildroot}
 install -D -m 0644 %{ini_name} %{buildroot}%{php_inidir}/%{ini_name}
 : Ext -- ZTS
-%if %{with_zts}
+%if %{with zts}
 make -C ext/ZTS install INSTALL_ROOT=%{buildroot}
 install -D -m 0644 %{ini_name} %{buildroot}%{php_ztsinidir}/%{ini_name}
 %endif
@@ -202,14 +202,14 @@ EXT_VERSION=`grep PHP_TWIG_VERSION ext/NTS/php_twig.h | awk '{print $3}' | sed '
     --define extension=ext/NTS/modules/%{ext_name}.so \
     --modules | grep %{ext_name}
 
-%if %{with_zts}
+%if %{with zts}
 : Extension ZTS minimal load test
 %{__ztsphp} --no-php-ini \
     --define extension=ext/ZTS/modules/%{ext_name}.so \
     --modules | grep %{ext_name}
 %endif
 
-%if %{with_tests}
+%if %{with tests}
 : Skip tests known to fail
 sed -e 's#function testGetAttributeExceptions#function SKIP_testGetAttributeExceptions#' \
     -e 's/function testGetAttributeWithTemplateAsObject/function skip_testGetAttributeWithTemplateAsObject/' \
@@ -241,7 +241,7 @@ sed 's/function testGetAttributeWithTemplateAsObject/function SKIP_testGetAttrib
 %config(noreplace) %{php_inidir}/%{ini_name}
 %{php_extdir}/%{ext_name}.so
 ## ZTS
-%if %{with_zts}
+%if %{with zts}
 %config(noreplace) %{php_ztsinidir}/%{ini_name}
 %{php_ztsextdir}/%{ext_name}.so
 %endif
@@ -250,6 +250,7 @@ sed 's/function testGetAttributeWithTemplateAsObject/function SKIP_testGetAttrib
 %changelog
 * Tue Jun 06 2017 Carl George <carl.george@rackspace.com> - 1.34.2-1.ius
 - Latest upstream
+- Add bconds for zts and tests
 
 * Thu May 04 2017 Ben Harper <ben.harper@rackspace.com> - 1.33.2-1.ius
 - Latest upstream
