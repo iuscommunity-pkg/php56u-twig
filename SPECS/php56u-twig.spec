@@ -14,7 +14,7 @@
 
 %global github_owner     twigphp
 %global github_name      Twig
-%global github_version   1.34.2
+%global github_version   1.34.3
 
 # Lib
 %global composer_vendor  twig
@@ -244,6 +244,9 @@ sed 's/function testGetAttributeWithTemplateAsObject/function SKIP_testGetAttrib
 
 
 %changelog
+* Wed Jun 21 2017 Ben Harper <ben.harper@rackspace.com> - 1.34.3-1.ius
+- Latest upstream
+
 * Tue Jun 06 2017 Carl George <carl.george@rackspace.com> - 1.34.2-1.ius
 - Latest upstream
 - Add bconds for zts and tests
