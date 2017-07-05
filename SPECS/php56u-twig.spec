@@ -14,7 +14,7 @@
 
 %global github_owner     twigphp
 %global github_name      Twig
-%global github_version   1.34.3
+%global github_version   1.34.4
 
 # Lib
 %global composer_vendor  twig
@@ -23,8 +23,6 @@
 # Ext
 %global ext_name twig
 %global ini_name 40-%{ext_name}.ini
-
-%{!?phpdir:      %global phpdir      %{_datadir}/php}
 
 %global php php56u
 
@@ -172,8 +170,8 @@ popd
 
 %install
 : Lib
-mkdir -p %{buildroot}%{phpdir}
-cp -rp lib/* %{buildroot}%{phpdir}/
+mkdir -p %{buildroot}%{_datadir}/php
+cp -rp lib/* %{buildroot}%{_datadir}/php/
 
 : Ext -- NTS
 make -C ext/NTS install INSTALL_ROOT=%{buildroot}
@@ -187,7 +185,7 @@ install -D -m 0644 %{ini_name} %{buildroot}%{php_ztsinidir}/%{ini_name}
 
 %check
 : Library version check
-%{__php} -r 'require_once "%{buildroot}%{phpdir}/Twig/autoload.php";
+%{__php} -r 'require_once "%{buildroot}%{_datadir}/php/Twig/autoload.php";
     exit(version_compare("%{version}", Twig_Environment::VERSION, "=") ? 0 : 1);'
 
 : Extension version check
@@ -217,11 +215,11 @@ sed 's/function testGetAttributeWithTemplateAsObject/function SKIP_testGetAttrib
 %endif
 
 : Test suite without extension
-%{_bindir}/phpunit --bootstrap %{buildroot}%{phpdir}/Twig/autoload.php --verbose
+%{_bindir}/phpunit --bootstrap %{buildroot}%{_datadir}/php/Twig/autoload.php --verbose
 
 : Test suite with extension
 %{_bindir}/php --define extension=ext/NTS/modules/%{ext_name}.so \
-    %{_bindir}/phpunit --bootstrap %{buildroot}%{phpdir}/Twig/autoload.php --verbose
+    %{_bindir}/phpunit --bootstrap %{buildroot}%{_datadir}/php/Twig/autoload.php --verbose
 %else
 : Tests skipped
 %endif
@@ -231,7 +229,7 @@ sed 's/function testGetAttributeWithTemplateAsObject/function SKIP_testGetAttrib
 %license LICENSE
 %doc CHANGELOG README.rst composer.json
 # Lib
-%{phpdir}/Twig
+%{_datadir}/php/Twig
 # Ext
 ## NTS
 %config(noreplace) %{php_inidir}/%{ini_name}
@@ -244,6 +242,9 @@ sed 's/function testGetAttributeWithTemplateAsObject/function SKIP_testGetAttrib
 
 
 %changelog
+* Wed Jul 05 2017 Carl George <carl.george@rackspace.com> - 1.34.4-1.ius
+- Latest upstream
+
 * Wed Jun 21 2017 Ben Harper <ben.harper@rackspace.com> - 1.34.3-1.ius
 - Latest upstream
 
